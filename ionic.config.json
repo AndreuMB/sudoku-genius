@@ -1,0 +1,7 @@
+{
+  "name": "Sudoku Genius",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
