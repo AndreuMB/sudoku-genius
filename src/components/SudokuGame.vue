@@ -1,76 +1,124 @@
 <template>
-  <div id="container" class="flex flex-col gap-12 justify-center text-center p-10 content-center h-full">
-    <!-- <p>puzzle = {{ sudoku }}</p>
-    <div class="flex">
-        <div class="sudoku-number" v-for="(line) in sudokuLines">
-            <div class="p-2" v-for="number in line">{{ number }}</div>
+  <div id="container" class="flex flex-col h-full w-full p-6 gap-12 justify-center text-center items-center">
+    <div class="flex flex-col gap-6 w-full max-w-90">
+        <div class="w-full text-right"><p>Mistakes: {{ mistakes }}/3</p></div>
+        <table class="bg-gray-900 w-full">
+            <tr class="sudoku-number" v-for="(line) in sudokuLines">
+                <td 
+                    v-for="numberPosition in line"
+                    @click="(ev) => selectCell(ev,numberPosition)" 
+                    class="w-4! h-10!" 
+                    :class="[numberPosition.number === null ? 'bg-gray-800' : '', numberPosition.color, selectedPosition === numberPosition ? 'bg-gray-700!' : '']"
+                >                
+                    {{ numberPosition.number === null ? ' ' : numberPosition.number + 1 }}
+                </td>
+            </tr>
+        </table>
+        <div class="flex justify-between w-full">
+            <button @click="addNumber(value)" class="border! p-2! rounded! hover:bg-gray-700! active:bg-gray-700!" v-for="value in [1,2,3,4,5,6,7,8,9]">{{ value }}</button>
         </div>
+    </div>
+    <ion-alert
+        header="Fail"
+        message="Uh Oh... You made more than 3 mistakes."
+        :is-open="isOpen"
+        :buttons="alertButtons"
+        @didDismiss="closeAlert()"
+    >
 
-    </div> -->
-
-    <table class="bg-gray-900">
-        <tr class="sudoku-number" v-for="(line) in sudokuLines">
-            <td @click="(ev) => selectCell(ev,numberPosition)" class="w-4! h-10!" :class="numberPosition.number === null ? 'bg-gray-800' : ''" v-for="numberPosition in line">{{ numberPosition.number === null ? ' ' : numberPosition.number + 1 }}</td>
-        </tr>
-
-    </table>
-
-    <!-- <br v-if="index%9===0"> -->
-    <!-- <p>puzzleSolve = {{ puzzleSolve }}</p>
-    <p>puzzleRate = {{ puzzleRate }}</p> -->
-    
-      <div class="flex justify-between w-full">
-        <button @click="addNumber(value)" class="border! p-2! rounded! hover:bg-gray-700! active:bg-gray-700!" v-for="value in [1,2,3,4,5,6,7,8,9]">{{ value }}</button>
-      </div>
+    </ion-alert>
   </div>
+
+
 </template>
 
 <script setup lang="ts">
+import { IonAlert, IonButton } from '@ionic/vue';
 import { makepuzzle, solvepuzzle, ratepuzzle } from "sudoku";
-const sudoku: Array<any> = makepuzzle()
-const sudokuSolved: Array<any> = solvepuzzle(sudoku)
+import { ref } from "vue";
+
+const alertButtons = ['Try again'];
+const isOpen = ref(false);
+const sudoku = ref<Array<any>>(makepuzzle())
+const sudokuSolved = ref<Array<any>>(solvepuzzle(sudoku))
+const mistakes = ref(0)
+
+
 interface NumberPosition {
     number: number | null,
-    index: number
+    index: number,
+    color: string
 }
 
-const sudokuLines:Array<Array<NumberPosition>> = []
-let indexSudoku = 0
-// 9 lines
-for (let line = 0; line < 9; line++) {
-    const newLine = []
-    // 9 numbers
-    for (let index = 0; index < 9; index++) {
-        const number = sudoku[indexSudoku]
-        newLine.push({number:number, index: indexSudoku})
-        indexSudoku++ 
+const sudokuLines = ref<Array<Array<NumberPosition>>>([])
+const selectedElement = ref<HTMLElement | null>(null)
+const selectedPosition = ref<NumberPosition | null>(null)
+
+const generateSudoku = () => {
+    sudoku.value = makepuzzle()
+    sudokuSolved.value = solvepuzzle(sudoku.value)
+    mistakes.value = 0
+    sudokuLines.value = []
+
+    if (selectedElement.value) selectedElement.value.classList.remove('bg-gray-700!')
+    selectedElement.value = null
+
+    selectedPosition.value = null
+
+    let indexSudoku = 0
+    // 9 lines
+    for (let line = 0; line < 9; line++) {
+        const newLine = []
+        // 9 numbers
+        for (let index = 0; index < 9; index++) {
+            const number = sudoku.value[indexSudoku]
+            newLine.push({number:number, index: indexSudoku, color:''})
+            indexSudoku++ 
+        }
+        sudokuLines.value.push(newLine)
     }
-    sudokuLines.push(newLine)
 }
 
+const closeAlert = () => {
+    isOpen.value = false
+    generateSudoku()
+};
 
-let selectedElement: HTMLElement | null = null
-let selectedPosition: NumberPosition | null = null
+generateSudoku()
 
 const selectCell = (ev:PointerEvent, numberPosition: NumberPosition) => {
     const td = ev.currentTarget as HTMLElement
     td.classList.add('bg-gray-700!')
-    selectedElement?.classList.remove('bg-gray-700!')
-    selectedElement = td
-    selectedPosition = numberPosition
+    if (selectedElement.value) selectedElement.value.classList.remove('bg-gray-700!')
+    selectedElement.value = td
+    selectedPosition.value = numberPosition
 }
 
 const addNumber = (number: number) => {
-    if (!selectedPosition) return
-    if (!selectedElement) return
+    if (!selectedPosition.value) return
+    if (!selectedElement.value) return
 
-    selectedElement.textContent = number + ''
+    const correctNumber = sudokuSolved.value[selectedPosition.value.index] + 1
 
-    if (number === sudokuSolved[selectedPosition.index]+1) {
-        selectedElement.classList.add('text-gray-400!')
+    console.log('selectedNum',selectedPosition.value.number);
+    console.log('correctNum',correctNumber);
+    
+    if (selectedPosition.value.number === correctNumber) return
+
+    if (number === correctNumber) {
+        // correct
+        selectedPosition.value.color = 'text-gray-400!'
     } else {
-        selectedElement.classList.add('text-red-400')
-    }
+        // mistake
+        if (mistakes.value>=3) {
+            isOpen.value = true
+            return
+        }
+        mistakes.value++
+        selectedPosition.value.color = 'text-red-400!'
+    }    
+    selectedPosition.value.number = number-1
+
 }
 
 
