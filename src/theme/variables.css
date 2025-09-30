@@ -1,3 +1,47 @@
 /* For information on how to create your own theme, please see:
 http://ionicframework.com/docs/theming/ */
 @import "tailwindcss";
+
+:root {
+  --primary-color: #A0ECD0;
+  --primary-dark-color: #94DDBC;
+  --secondary-color: #88BB92;
+
+  
+  --terciary-color: #FFC9B9;
+  --extra-color:#D68C45;
+}
+
+.tab-selected {
+    color:var(--secondary-color)
+}
+
+ion-toolbar {
+    --color: var(--extra-color);
+    --background: var(--color-terciary);
+}
+
+ion-tab-bar {
+    --color: var(--extra-color);
+    --background: var(--color-terciary);
+}
+
+ion-tab-button {
+    --color: var(--extra-color);
+    --background: var(--color-terciary);
+}
+
+ion-tab-button:hover {
+    --color: var(--color-primary-dark);
+}
+
+@theme {
+  --color-primary: var(--primary-color);
+  --color-primary-dark: var(--primary-dark-color);
+  --color-secondary: var(--secondary-color);
+  --color-terciary: var(--terciary-color);
+}
+
+#container {
+    background: var(--secondary-color);
+}

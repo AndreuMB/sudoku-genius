@@ -1,21 +1,47 @@
 <template>
-  <div id="container" class="flex flex-col h-full w-full p-6 gap-12 justify-center text-center items-center">
-    <div class="flex flex-col gap-6 w-full max-w-90">
-        <div class="w-full text-right"><p>Mistakes: {{ mistakes }}/3</p></div>
-        <table class="bg-gray-900 w-full">
-            <tr class="sudoku-number" v-for="(line) in sudokuLines">
-                <td 
-                    v-for="numberPosition in line"
-                    @click="(ev) => selectCell(ev,numberPosition)" 
-                    class="w-4! h-10!" 
-                    :class="[numberPosition.number === null ? 'bg-gray-800' : '', numberPosition.color, selectedPosition === numberPosition ? 'bg-gray-700!' : '']"
-                >                
-                    {{ numberPosition.number === null ? ' ' : numberPosition.number + 1 }}
-                </td>
-            </tr>
-        </table>
-        <div class="flex justify-between w-full">
-            <button @click="addNumber(value)" class="border! p-2! rounded! hover:bg-gray-700! active:bg-gray-700!" v-for="value in [1,2,3,4,5,6,7,8,9]">{{ value }}</button>
+  <div id="container" class="flex flex-col h-full w-full p-6 justify-center text-center items-center">
+    <div class="flex flex-col gap-6">
+        <div class="w-full">
+        <p class="text-right">Mistakes: {{ mistakes }}/3</p>
+        <div class="w-full max-w-xl aspect-square">
+            <table class="bg-primary w-full h-full table-fixed text-lg">
+                <tr class="sudoku-number" v-for="(line) in sudokuLines">
+                    <td 
+                        v-for="numberPosition in line"
+                        @click="(ev) => selectCell(ev,numberPosition)" 
+                        class="w-5 h-5 relative" 
+                        :class="[numberPosition.number === null ? 'bg-primary-dark' : '', numberPosition.color, selectedPosition === numberPosition ? 'bg-primary!' : '']"
+                    >
+                        <div
+                            v-show="numberPosition.number === null"
+                            class="note-number absolute h-full w-full top-0 left-0 grid grid-cols-3 grid-rows-3 text-sm text-gray-400"
+                        >
+                            <div class="1"></div>
+                            <div class="2"></div>
+                            <div class="3"></div>
+                            <div class="4"></div>
+                            <div class="5"></div>
+                            <div class="6"></div>
+                            <div class="7"></div>
+                            <div class="8"></div>
+                            <div class="9"></div>
+                        </div>
+                        <div v-if="numberPosition.number !== null" >
+                            {{ numberPosition.number + 1 }}
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        </div>
+        <div class="flex justify-between w-full buttons items-center">
+            <button @click="addNumber(value)" class="" v-for="value in [1,2,3,4,5,6,7,8,9]">{{ value }}</button>
+            <button 
+                @click="notesToggle=!notesToggle"
+                :class="[notesToggle ? 'bg-secondary' : '']"
+            >
+                <ion-icon name="create-outline"></ion-icon>
+            </button>
         </div>
     </div>
     <ion-alert
@@ -27,21 +53,25 @@
     >
 
     </ion-alert>
+
   </div>
 
 
 </template>
 
 <script setup lang="ts">
-import { IonAlert, IonButton } from '@ionic/vue';
+import { IonAlert, IonIcon } from '@ionic/vue';
 import { makepuzzle, solvepuzzle, ratepuzzle } from "sudoku";
 import { ref } from "vue";
+
 
 const alertButtons = ['Try again'];
 const isOpen = ref(false);
 const sudoku = ref<Array<any>>(makepuzzle())
 const sudokuSolved = ref<Array<any>>(solvepuzzle(sudoku))
 const mistakes = ref(0)
+
+const notesToggle = ref(false)
 
 
 interface NumberPosition {
@@ -79,12 +109,12 @@ const generateSudoku = () => {
     }
 }
 
+generateSudoku()
+
 const closeAlert = () => {
     isOpen.value = false
     generateSudoku()
 };
-
-generateSudoku()
 
 const selectCell = (ev:PointerEvent, numberPosition: NumberPosition) => {
     const td = ev.currentTarget as HTMLElement
@@ -98,16 +128,22 @@ const addNumber = (number: number) => {
     if (!selectedPosition.value) return
     if (!selectedElement.value) return
 
-    const correctNumber = sudokuSolved.value[selectedPosition.value.index] + 1
+    // sudoku numbers internal function go from 0 to 8
+    number = number - 1
 
-    console.log('selectedNum',selectedPosition.value.number);
-    console.log('correctNum',correctNumber);
+    const correctNumber = sudokuSolved.value[selectedPosition.value.index]
     
     if (selectedPosition.value.number === correctNumber) return
 
+    if (notesToggle.value) {
+        selectedPosition.value.number = null
+        notesEnabled(selectedElement.value,number)
+        return
+    }
+
     if (number === correctNumber) {
         // correct
-        selectedPosition.value.color = 'text-gray-400!'
+        selectedPosition.value.color = 'text-secondary!'
     } else {
         // mistake
         if (mistakes.value>=3) {
@@ -117,8 +153,16 @@ const addNumber = (number: number) => {
         mistakes.value++
         selectedPosition.value.color = 'text-red-400!'
     }    
-    selectedPosition.value.number = number-1
+    selectedPosition.value.number = number
+}
 
+const notesEnabled = (cell:HTMLElement, number:number) => {
+    const fixNumber = number + 1 + ''
+    const cellGridNumber = cell.getElementsByClassName(fixNumber)[0]
+    if (!cellGridNumber) return
+    console.log('content', cellGridNumber.textContent);
+    
+    cellGridNumber.textContent = !cellGridNumber.textContent ? fixNumber : ''
 }
 
 
@@ -126,18 +170,51 @@ const addNumber = (number: number) => {
 
 <style scoped>
     td {
-        border:1px solid white;
+        border:2px solid var(--color-secondary);
     }
     table {
-        border:3px solid white;
+        border:3px solid  var(--color-secondary);
 
     }
-
     tr:nth-child(3n){
-        border-bottom:3px solid white;
+        border-bottom:3px solid var(--color-secondary);
     }
 
     td:nth-child(3n) {
-        border-right:3px solid white;
+        border-right:3px solid var(--color-secondary);
+    }
+
+    @media (max-width: 500px) {
+        .sudoku-number{
+            font-size: 12px;
+        }
+        .note-number {
+            font-size: 9px;
+        }
+    }
+
+    @media (max-width: 350px) {
+        .sudoku-number{
+            font-size: 10px;
+        }
+        .note-number {
+            font-size: 7px;
+        }
+    }
+
+    .buttons > button {
+        border: solid 1px var(--color-primary);
+        border-radius: 25%;
+        width: 2.5em;
+        height: 2.5em;
+        font-size: larger;
+    }
+
+    .buttons > button:hover{
+        background-color: var(--color-primary);
+    }
+
+    .buttons > button:active{
+        background-color: var(--color-primary-dark);
     }
 </style>

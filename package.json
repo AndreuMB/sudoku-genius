@@ -21,13 +21,14 @@
     "@ionic/vue": "^8.0.0",
     "@ionic/vue-router": "^8.0.0",
     "@tailwindcss/vite": "^4.1.13",
-    "ionicons": "^7.0.0",
+    "ionicons": "^7.4.0",
     "sudoku": "^0.0.3",
     "tailwindcss": "^4.1.13",
     "vue": "^3.3.0",
     "vue-router": "^4.2.0"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "7.4.3",
     "@vitejs/plugin-legacy": "^5.0.0",
     "@vitejs/plugin-vue": "^4.0.0",
