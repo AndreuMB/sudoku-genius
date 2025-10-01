@@ -10,5 +10,4 @@ C:\Users\andre\AppData\Local\Android\Sdk\platform-tools\adb
 > adb start-server
 > adb devices
 
-
 npx cap run android

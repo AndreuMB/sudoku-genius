@@ -2,7 +2,11 @@
   <div id="container" class="flex flex-col h-full w-full p-6 justify-center text-center items-center">
     <div class="flex flex-col gap-6">
         <div class="w-full">
-        <p class="text-right">Mistakes: {{ mistakes }}/3</p>
+            <div class="w-full flex justify-between *:w-30">
+                <SudokuTimer class="text-left" ref="timerRef" @seconds="(sec) => handleSenconds(sec)" />
+                <SudokuScore :seconds :answers="answers" :mistakes="mistakes" />
+                <p class="text-right">Mistakes: {{ mistakes }}/3</p>
+            </div>
         <div class="w-full max-w-xl aspect-square">
             <table class="bg-primary w-full h-full table-fixed text-lg">
                 <tr class="sudoku-number" v-for="(line) in sudokuLines">
@@ -34,7 +38,7 @@
             </table>
         </div>
         </div>
-        <div class="flex justify-between w-full buttons items-center">
+        <div class="flex justify-center w-full buttons items-center flex-wrap gap-2">
             <button @click="addNumber(value)" class="" v-for="value in [1,2,3,4,5,6,7,8,9]">{{ value }}</button>
             <button 
                 @click="notesToggle=!notesToggle"
@@ -63,13 +67,23 @@
 import { IonAlert, IonIcon } from '@ionic/vue';
 import { makepuzzle, solvepuzzle, ratepuzzle } from "sudoku";
 import { ref } from "vue";
+import SudokuTimer from './SudokuTimer.vue';
+import SudokuScore from './SudokuScore.vue';
 
 
 const alertButtons = ['Try again'];
 const isOpen = ref(false);
 const sudoku = ref<Array<any>>(makepuzzle())
 const sudokuSolved = ref<Array<any>>(solvepuzzle(sudoku))
+const answers = ref(0)
 const mistakes = ref(0)
+
+const timerRef = ref<InstanceType<typeof SudokuTimer> | null>(null)
+const seconds = ref(0)
+
+const handleSenconds = (secondsTimer:number) => {   
+    seconds.value = secondsTimer
+}
 
 const notesToggle = ref(false)
 
@@ -88,6 +102,9 @@ const generateSudoku = () => {
     sudoku.value = makepuzzle()
     sudokuSolved.value = solvepuzzle(sudoku.value)
     mistakes.value = 0
+    answers.value = 0
+    if (timerRef.value) timerRef.value.reset()
+    
     sudokuLines.value = []
 
     if (selectedElement.value) selectedElement.value.classList.remove('bg-gray-700!')
@@ -144,10 +161,12 @@ const addNumber = (number: number) => {
     if (number === correctNumber) {
         // correct
         selectedPosition.value.color = 'text-secondary!'
+        answers.value++
     } else {
         // mistake
         if (mistakes.value>=3) {
             isOpen.value = true
+            if (timerRef.value) timerRef.value.stop()
             return
         }
         mistakes.value++

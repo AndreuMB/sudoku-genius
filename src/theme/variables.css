@@ -9,30 +9,7 @@ http://ionicframework.com/docs/theming/ */
 
   
   --terciary-color: #FFC9B9;
-  --extra-color:#D68C45;
-}
-
-.tab-selected {
-    color:var(--secondary-color)
-}
-
-ion-toolbar {
-    --color: var(--extra-color);
-    --background: var(--color-terciary);
-}
-
-ion-tab-bar {
-    --color: var(--extra-color);
-    --background: var(--color-terciary);
-}
-
-ion-tab-button {
-    --color: var(--extra-color);
-    --background: var(--color-terciary);
-}
-
-ion-tab-button:hover {
-    --color: var(--color-primary-dark);
+  --terciary-dark-color:#D68C45;
 }
 
 @theme {
@@ -40,8 +17,39 @@ ion-tab-button:hover {
   --color-primary-dark: var(--primary-dark-color);
   --color-secondary: var(--secondary-color);
   --color-terciary: var(--terciary-color);
+  --color-terciaray-dark: var(--terciary-dark-color);
+  --font-bruno: BrunoAce;
+}
+
+.tab-selected {
+    color:var(--secondary-color)
+}
+
+ion-toolbar {
+    --color: var(--terciary-dark-color);
+    --background: var(--color-terciary);
+}
+
+ion-tab-bar {
+    --color: var(--terciary-dark-color);
+    --background: var(--color-terciary);
+}
+
+ion-tab-button {
+    --color: var(--terciary-dark-color);
+    --background: var(--color-terciary);
+    --color-selected: var(--primary-dark-color); /* hover */
 }
 
 #container {
     background: var(--secondary-color);
+}
+
+body {
+    font-family: BrunoAce;
+}
+
+@font-face {
+    font-family: BrunoAce;
+    src: url(/src/assets/BrunoAceSC.ttf);
 }
