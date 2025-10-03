@@ -8,9 +8,11 @@ http://ionicframework.com/docs/theming/ */
   --primary-light-color: #CFFFB0;
 
   --secondary-color: #88BB92;
+  --secondary-dark-color: #558b60;
+
 
   --terciary-color: #fcca9c;
-  --terciary-dark-color:#b65800;
+  --terciary-dark-color:#dd7c22;
   --terciary-light-color:#fcca9cbb;
   --terciary-extralight-color:#fcca9c60;
 
@@ -24,6 +26,7 @@ http://ionicframework.com/docs/theming/ */
   --color-primary-light: var(--primary-light-color);
 
   --color-secondary: var(--secondary-color);
+  --color-secondary-dark: var(--secondary-dark-color);
 
   --color-terciary: var(--terciary-color);
   --color-terciary-light: var(--terciary-light-color);

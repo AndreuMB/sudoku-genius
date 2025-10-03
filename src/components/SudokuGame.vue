@@ -20,6 +20,12 @@
                                 selectedRow === lineIndex ? 'bg-terciary-light' : '',
                                 selectedCol === colIndex ? 'bg-terciary-light' : '',
                                 selectedPosition === numberPosition ? 'bg-terciary!' : '',
+                                selectedSquare && 
+                                Math.floor(lineIndex / 3) === selectedSquare.row &&
+                                Math.floor(colIndex / 3) === selectedSquare.col 
+                                    ? 'bg-terciary-light' 
+                                    : ''
+                                
                             ]"
                         >
                             <div
@@ -82,6 +88,11 @@ import { computed, onMounted, ref } from "vue";
 import SudokuTimer from './SudokuTimer.vue';
 import SudokuScore from './SudokuScore.vue';
 
+interface NumberPosition {
+    number: number | null, // display number
+    index: number, // check in sudokuSolved
+    color: string // color number
+}
 
 const alertButtons = ['Try again'];
 const isOpen = ref(false);
@@ -99,19 +110,26 @@ const sudoku = ref<Array<Array<NumberPosition>>>([])
 const selectedElement = ref<HTMLElement | null>(null)
 const selectedPosition = ref<NumberPosition | null>(null)
 
-const answersColor = 'text-extra'
+const answersColor = 'text-secondary-dark'
+const mistakesColor = 'text-extra'
 
-const handleSenconds = (secondsTimer:number) => {   
-    seconds.value = secondsTimer
-}
+const selectedRow = computed(() => {
+  if (!selectedPosition.value) return null  
+  return Math.floor(selectedPosition.value.index / 9)
+})
 
+const selectedCol = computed(() => {
+  if (!selectedPosition.value) return null 
+  return selectedPosition.value.index % 9
+})
 
-
-interface NumberPosition {
-    number: number | null, // display number
-    index: number, // check in sudokuSolved
-    color: string // color number
-}
+const selectedSquare = computed(() => {
+if (selectedRow.value === null || selectedCol.value === null) return null
+  return {
+    row: Math.floor(selectedRow.value / 3),
+    col: Math.floor(selectedCol.value / 3),
+  }
+})
 
 onMounted(()=> {
     const sudokuLS = localStorage.getItem('sudoku')
@@ -134,24 +152,14 @@ onMounted(()=> {
     
 })
 
-const selectedRow = computed(() => {
-  if (!selectedPosition.value) return null  
-  return Math.floor(selectedPosition.value.index / 9)
-})
-
-const selectedCol = computed(() => {
-  if (!selectedPosition.value) return null
-
-  
-  console.log(selectedPosition.value.index);
-  console.log('foor',selectedPosition.value.index % 9);
-  return selectedPosition.value.index % 9
-})
-
 const sudokuStringtoArray = (sudoku:string): Array<number|null> => {
     const sudokuArray = sudoku.split(',')        
     const sudokuNum = sudokuArray.map((str)=> str === '' ? null : Number(str))
     return sudokuNum
+}
+
+const handleSenconds = (secondsTimer:number) => {   
+    seconds.value = secondsTimer
 }
 
 const generateSudoku = (sudokuG: Array<number | null>, sudokuUserSoluved?: Array<number | null>) => {
@@ -239,7 +247,7 @@ const addNumber = (number: number) => {
         }
         mistakes.value++
         localStorage.setItem(mistakes.value+'','mistakes')
-        selectedPosition.value.color = 'text-extra'
+        selectedPosition.value.color = mistakesColor
     }
 
     selectedPosition.value.number = number    
@@ -308,7 +316,7 @@ const notesEnabled = (cell:HTMLElement, number:number) => {
         background-color: var(--color-primary);
     }
 
-    .buttons > button:active{
+    /* .buttons > button:active{
         background-color: var(--color-primary-dark);
-    }
+    } */
 </style>
