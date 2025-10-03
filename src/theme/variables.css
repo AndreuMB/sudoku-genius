@@ -5,19 +5,34 @@ http://ionicframework.com/docs/theming/ */
 :root {
   --primary-color: #A0ECD0;
   --primary-dark-color: #94DDBC;
+  --primary-light-color: #CFFFB0;
+
   --secondary-color: #88BB92;
 
-  
-  --terciary-color: #FFC9B9;
-  --terciary-dark-color:#D68C45;
+  --terciary-color: #fcca9c;
+  --terciary-dark-color:#b65800;
+  --terciary-light-color:#fcca9cbb;
+  --terciary-extralight-color:#fcca9c60;
+
+  --extra-color: #717171;
+  --extra-light-color: #FFF689;
 }
 
 @theme {
   --color-primary: var(--primary-color);
   --color-primary-dark: var(--primary-dark-color);
+  --color-primary-light: var(--primary-light-color);
+
   --color-secondary: var(--secondary-color);
+
   --color-terciary: var(--terciary-color);
-  --color-terciaray-dark: var(--terciary-dark-color);
+  --color-terciary-light: var(--terciary-light-color);
+  --color-terciary-extralight: var(--terciary-extralight-color);
+  --color-terciary-dark: var(--terciary-dark-color);
+
+  --color-extra: var(--extra-color);
+  --color-extra-light: var(--extra-light-color);
+
   --font-bruno: BrunoAce;
 }
 
