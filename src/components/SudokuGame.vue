@@ -1,5 +1,5 @@
 <template>
-  <div id="container" class="flex flex-col h-full w-full p-6 justify-center text-center items-center">
+  <div id="container" class="flex flex-col h-full w-full p-2 justify-center text-center items-center">
     <div class="flex flex-col gap-6">
         <div class="w-full">
             <div class="w-full flex justify-between *:w-full">
@@ -9,7 +9,7 @@
             </div>
             <div class="w-full max-w-xl aspect-square">
                 <table class="w-full h-full table-fixed text-2xl">
-                    <tr class="sudoku-number bg-primary" v-for="(line, lineIndex) in sudoku">
+                    <tr class="sudoku-number" v-for="(line, lineIndex) in sudoku">
                         <td 
                             v-for="(numberPosition, colIndex) in line"
                             @click="(ev) => selectCell(ev,numberPosition)" 
@@ -17,20 +17,20 @@
                             :class="[
                                 numberPosition.number === null ? '' : '',
                                 numberPosition.color,
-                                selectedRow === lineIndex ? 'bg-terciary-light' : '',
-                                selectedCol === colIndex ? 'bg-terciary-light' : '',
-                                selectedPosition === numberPosition ? 'bg-terciary!' : '',
+                                selectedRow === lineIndex ? 'bg-primary-light' : '',
+                                selectedCol === colIndex ? 'bg-primary-light' : '',
+                                selectedPosition === numberPosition ? 'bg-primary-dark!' : '',
                                 selectedSquare && 
                                 Math.floor(lineIndex / 3) === selectedSquare.row &&
                                 Math.floor(colIndex / 3) === selectedSquare.col 
-                                    ? 'bg-terciary-light' 
+                                    ? 'bg-primary-light' 
                                     : ''
                                 
                             ]"
                         >
                             <div
                                 v-show="numberPosition.number === null"
-                                class="note-number absolute h-full w-full top-0 left-0 grid grid-cols-3 grid-rows-3 text-sm text-gray-400"
+                                class="note-number absolute h-full w-full top-0 left-0 grid grid-cols-3 grid-rows-3 text-sm"
                             >
                                 <div class="1"></div>
                                 <div class="2"></div>
@@ -58,7 +58,7 @@
                 <button @click="addNumber(value)" v-for="value in [1,2,3,4,5,6,7,8,9]">{{ value }}</button>
                 <button 
                     @click="notesToggle=!notesToggle"
-                    :class="[notesToggle ? 'bg-primary-dark' : 'bg-secondary']"
+                    :class="[notesToggle ? 'bg-primary-dark!' : '']"
                 >
                     <ion-icon name="create-outline"></ion-icon>
                 </button>
@@ -110,7 +110,7 @@ const sudoku = ref<Array<Array<NumberPosition>>>([])
 const selectedElement = ref<HTMLElement | null>(null)
 const selectedPosition = ref<NumberPosition | null>(null)
 
-const answersColor = 'text-secondary-dark'
+const answersColor = 'text-primary'
 const mistakesColor = 'text-extra'
 
 const selectedRow = computed(() => {
@@ -268,30 +268,52 @@ const notesEnabled = (cell:HTMLElement, number:number) => {
 
 <style scoped>
     td {
-        border:2px solid var(--color-secondary);
+        border:1px solid var(--secondary-light-color);
     }
     table {
-        border:3px solid  var(--color-secondary);
-        color: var(--terciary-dark-color);
+        border:2px solid  var(--color-secondary);
+        /* color: var(--terciary-dark-color); */
     }
     tr:nth-child(3n){
-        border-bottom:3px solid var(--color-secondary);
+        border-bottom:2px solid var(--color-secondary);
     }
 
     td:nth-child(3n) {
-        border-right:3px solid var(--color-secondary);
+        border-right:2px solid var(--color-secondary);
+    }
+
+    .note-number {
+        color: var(--secondary-dark-color);
+    }
+
+    @media (min-width: 500px) {
+        .sudoku-number{
+            font-size: 30px;
+        }
+        .note-number {
+            font-size: 16px;
+        }
     }
 
     @media (max-width: 500px) {
         .sudoku-number{
-            font-size: 20px;
+            font-size: 22px;
         }
         .note-number {
-            font-size: 9px;
+            font-size: 12px;
         }
     }
 
-    @media (max-width: 350px) {
+    @media (max-width: 300px) {
+        .sudoku-number{
+            font-size: 16px;
+        }
+        .note-number {
+            font-size: 8px;
+        }
+    }
+
+    @media (max-width: 220px) {
         .sudoku-number{
             font-size: 14px;
         }
@@ -301,7 +323,7 @@ const notesEnabled = (cell:HTMLElement, number:number) => {
     }
 
     .buttons > button {
-        border: solid 1px var(--color-primary);
+        /* border: solid 1px var(--color-primary); */
         border-radius: 25%;
         max-width: 2.5em;
         max-height: 2.5em;
@@ -309,11 +331,13 @@ const notesEnabled = (cell:HTMLElement, number:number) => {
         min-height: 2em;
         width: 2.5em;
         height: 2.5em;
+        background-color: var(--primary-light-color);
         font-size: larger;
+        color: var(--primary-color);
     }
 
     .buttons > button:hover{
-        background-color: var(--color-primary);
+        background-color: var(--primary-light-dark-color);
     }
 
     /* .buttons > button:active{

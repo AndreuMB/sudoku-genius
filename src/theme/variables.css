@@ -3,7 +3,7 @@ http://ionicframework.com/docs/theming/ */
 @import "tailwindcss";
 
 :root {
-  --primary-color: #A0ECD0;
+  /* --primary-color: #A0ECD0;
   --primary-dark-color: #94DDBC;
   --primary-light-color: #CFFFB0;
 
@@ -17,7 +17,21 @@ http://ionicframework.com/docs/theming/ */
   --terciary-extralight-color:#fcca9c60;
 
   --extra-color: #717171;
-  --extra-light-color: #FFF689;
+  --extra-light-color: #FFF689; */
+    
+    --primary-color: #3945ad;
+    --primary-dark-color: #aecfef;
+    --primary-light-color: #e1ebf5;
+    --primary-light-dark-color: #dbe5ee;
+
+    --secondary-color: #131313;
+    --secondary-dark-color: #13131370;
+    --secondary-light-color: #13131350;
+
+    --extra-color: #ff1a1a;
+
+    --background-color: white;
+    --text-color: #131313;
 }
 
 @theme {
@@ -28,13 +42,14 @@ http://ionicframework.com/docs/theming/ */
   --color-secondary: var(--secondary-color);
   --color-secondary-dark: var(--secondary-dark-color);
 
-  --color-terciary: var(--terciary-color);
+  /* --color-terciary: var(--terciary-color);
   --color-terciary-light: var(--terciary-light-color);
   --color-terciary-extralight: var(--terciary-extralight-color);
   --color-terciary-dark: var(--terciary-dark-color);
 
+  --color-extra-light: var(--extra-light-color); */
+
   --color-extra: var(--extra-color);
-  --color-extra-light: var(--extra-light-color);
 
   --font-bruno: BrunoAce;
 }
@@ -44,23 +59,28 @@ http://ionicframework.com/docs/theming/ */
 }
 
 ion-toolbar {
-    --color: var(--terciary-dark-color);
-    --background: var(--color-terciary);
+    --background: var(--primary-light-color);
+    --color: var(--text-color);
 }
 
 ion-tab-bar {
-    --color: var(--terciary-dark-color);
-    --background: var(--color-terciary);
+    --background: var(--primary-light-color);
+    --color: var(--text-color);
 }
 
 ion-tab-button {
-    --color: var(--terciary-dark-color);
-    --background: var(--color-terciary);
-    --color-selected: var(--primary-dark-color); /* hover */
+    /* --color: var(--terciary-dark-color);
+    --background: var(--color-terciary); */
+    --color-selected: var(--primary-color); /* hover */
+}
+
+ion-content {
+    --color: var(--text-color);
 }
 
 #container {
-    background: var(--secondary-color);
+    background: var(--background-color);
+    /* color: #131313 !important; */
 }
 
 body {
@@ -70,4 +90,8 @@ body {
 @font-face {
     font-family: BrunoAce;
     src: url(/src/assets/BrunoAceSC.ttf);
+}
+
+.header {
+    box-shadow: none;
 }
