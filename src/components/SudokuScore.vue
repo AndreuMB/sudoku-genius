@@ -30,10 +30,10 @@ const addMistake = () => {
   mistakes.value++
   const pointsToRemove = mistakePoints * mistakes.value
   if (score.value - pointsToRemove <= 0){
-      score.value = 0
-      return
+    score.value = 0
+  } else {
+    score.value = score.value - pointsToRemove
   }
-  score.value = score.value - pointsToRemove
   localStorage.setItem('score', score.value + '')
   localStorage.setItem('mistakes', mistakes.value+'')
 }

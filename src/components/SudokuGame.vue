@@ -32,7 +32,8 @@
                                 v-show="numberPosition.number === null"
                                 class="note-number absolute h-full w-full top-0 left-0 grid grid-cols-3 grid-rows-3 text-sm"
                             >
-                                <div class="1"></div>
+                                <div v-for="n in 9" :key="n">{{ numberPosition.noteNumber.find(num=>num===n) ? n : '' }}</div>
+                                <!-- <div class="1"></div>
                                 <div class="2"></div>
                                 <div class="3"></div>
                                 <div class="4"></div>
@@ -40,7 +41,7 @@
                                 <div class="6"></div>
                                 <div class="7"></div>
                                 <div class="8"></div>
-                                <div class="9"></div>
+                                <div class="9"></div> -->
                             </div>
                             <div v-if="numberPosition.number !== null" >
                                 {{ numberPosition.number + 1 }}
@@ -92,6 +93,7 @@ interface NumberPosition {
     number: number | null, // display number
     index: number, // check in sudokuSolved
     color: string // color number
+    noteNumber: number[] // gray small numbers
 }
 
 const alertButtons = ['Try again'];
@@ -133,6 +135,7 @@ if (selectedRow.value === null || selectedCol.value === null) return null
 })
 
 const startGame = () => {
+    loadSudoku()
     if (!timerRef.value) return
     const sudokuLS = localStorage.getItem('sudoku')
     const sudokuUserSolvedLS = localStorage.getItem('sudokuUserSolved')
@@ -141,7 +144,6 @@ const startGame = () => {
 
     if (sudokuLS) {
         sudoku = sudokuStringtoArray(sudokuLS)
-
         sudokuUserSolved.value = sudokuUserSolvedLS ? sudokuStringtoArray(sudokuUserSolvedLS) : []    
     }
 
@@ -189,12 +191,19 @@ const generateSudoku = (sudokuG: Array<number | null>, sudokuUserSoluved?: Array
         // 9 numbers
         for (let index = 0; index < 9; index++) {
             const number = sudokuGen.value[indexSudoku]
-            let newNumber = {number:number, index: indexSudoku, color:''}
+            let newNumber: NumberPosition = {number:number, index: indexSudoku, color:'', noteNumber:[]}
 
+            if (notesNumber.value && notesNumber.value[indexSudoku]) {
+                const notesNumbersArray = notesNumber.value[indexSudoku].notes
+                newNumber.noteNumber = notesNumbersArray
+            }
             if (sudokuUserSoluved && Number.isInteger(sudokuUserSoluved[indexSudoku])) {
                 const userSolvedNum = sudokuUserSoluved[indexSudoku]
-                newNumber = {number:userSolvedNum, index: indexSudoku, color: answersColor}
+                newNumber.number = userSolvedNum
+                newNumber.color = answersColor
             }
+
+
 
             newLine.push(newNumber)
             indexSudoku++ 
@@ -229,15 +238,26 @@ const addNumber = (number: number) => {
     if (!scoreRef.value) return
     
     // sudoku numbers internal function go from 0 to 8
-    number = number - 1    
+    number = number - 1
 
     const correctNumber = sudokuSolved.value[selectedPosition.value.index]
     
     if (selectedPosition.value.number === correctNumber) return
 
     if (notesToggle.value) {
+        number = number + 1
         selectedPosition.value.number = null
-        notesEnabled(selectedElement.value,number)
+
+        if (selectedPosition.value.noteNumber.find(num => num === number)) {
+            // remove number
+            selectedPosition.value.noteNumber = selectedPosition.value.noteNumber.filter(item => item !== number);
+        } else {
+            // add number
+            selectedPosition.value.noteNumber.push(number)
+        }
+        
+        saveSudoku()
+
         return
     }
 
@@ -245,9 +265,6 @@ const addNumber = (number: number) => {
         // correct
         selectedPosition.value.color = answersColor
         scoreRef.value.addScore()
-        
-        // sudoku.value[selectedPosition.value.index] = number
-        // localStorage.setItem('sudoku',sudoku.value.toString())
         sudokuUserSolved.value[selectedPosition.value.index] = number
         localStorage.setItem('sudokuUserSolved',sudokuUserSolved.value.toString())
     } else {
@@ -262,15 +279,29 @@ const addNumber = (number: number) => {
         selectedPosition.value.color = mistakesColor
     }
 
+    
     selectedPosition.value.number = number    
     
+    saveSudoku()
 }
 
-const notesEnabled = (cell:HTMLElement, number:number) => {
-    const fixNumber = number + 1 + ''
-    const cellGridNumber = cell.getElementsByClassName(fixNumber)[0]
-    if (!cellGridNumber) return    
-    cellGridNumber.textContent = !cellGridNumber.textContent ? fixNumber : ''
+const saveSudoku = () => {
+    const toSave = sudoku.value.flat().map(cell => ({
+      number: cell.number,
+      notes: cell.noteNumber,
+    }))
+    localStorage.setItem('sudokuState', JSON.stringify(toSave))
+}
+
+const notesNumber = ref<null|{number:number,notes:number[]}[]>(null)
+
+const loadSudoku = () => {
+    const saved = localStorage.getItem('sudokuState')
+    if (saved) {
+        const parsed = JSON.parse(saved)
+        notesNumber.value = parsed
+    }
+    
 }
 
 
