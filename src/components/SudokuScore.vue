@@ -5,56 +5,48 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 
 const score = ref(0)
+const mistakes = ref(0)
 const answerPoints = 420
 
 const props = defineProps<{
-    seconds: number,
-    answers: number,
-    mistakes: number,
+    seconds: number
 }>()
 
-watch(
-  () => props.answers,
-  (newVal, oldVal) => {
-    if (newVal !== oldVal) {
-        if (newVal === 0) {
-            score.value = 0
-            return
-        }
-        addScore()
-    }
-  }
-)
-
-watch(
-  () => props.mistakes,
-  (newVal, oldVal) => {
-    if (newVal !== oldVal) {
-      addMistake()
-    }
-  }
-)
 
 const addScore = () => {
-    const lessPoints = Math.floor(props.seconds/10)
-    const pointsToWin = answerPoints - lessPoints
-    score.value = score.value + pointsToWin
+  const lessPoints = Math.floor(props.seconds/10)
+  const pointsToWin = answerPoints - lessPoints
+  score.value = score.value + pointsToWin
+  localStorage.setItem('score', score.value + '')
 }
 
 const mistakePoints = 700
 
 const addMistake = () => {
-    const pointsToRemove = mistakePoints * props.mistakes
-    if (score.value - pointsToRemove <= 0){
-        score.value = 0
-        return
-    }
-    score.value = score.value - pointsToRemove
+  mistakes.value++
+  const pointsToRemove = mistakePoints * mistakes.value
+  if (score.value - pointsToRemove <= 0){
+      score.value = 0
+      return
+  }
+  score.value = score.value - pointsToRemove
+  localStorage.setItem('score', score.value + '')
+  localStorage.setItem('mistakes', mistakes.value+'')
 }
+
+defineExpose({
+  addScore,
+  addMistake
+})
+
+onMounted(()=> {
+  score.value = Number(localStorage.getItem('score')) | 0
+  mistakes.value = Number(localStorage.getItem('mistakes')) | 0
+})
 
 
 

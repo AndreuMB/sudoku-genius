@@ -13,7 +13,9 @@ const seconds = ref(0)
 
 let timer: ReturnType<typeof setInterval> | null = null
 
-const start = () => {
+const start = (savedSeconds:number) => {
+  console.log('savedSeconds',savedSeconds);
+  seconds.value = savedSeconds
   if (timer) return // avoid multiple intervals
   timer = setInterval(() => {
     emits('seconds', seconds.value)
@@ -33,7 +35,7 @@ const reset = () => {
   stop()
   seconds.value = 0
   timerString.value = '00:00'
-  start()
+  start(seconds.value)
 }
 
 // expose methods to parent
@@ -41,10 +43,6 @@ defineExpose({
   reset,
   start,
   stop,
-})
-
-onMounted(() => {
-  start()
 })
 
 onUnmounted(() => {

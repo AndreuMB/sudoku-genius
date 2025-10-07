@@ -3,8 +3,8 @@
     <div class="flex flex-col gap-6">
         <div class="w-full">
             <div class="w-full flex justify-between *:w-full">
-                <SudokuTimer class="text-left" ref="timerRef" @seconds="(sec) => handleSenconds(sec)" />
-                <SudokuScore :seconds :answers="answers" :mistakes="mistakes" />
+                <SudokuTimer class="text-left" ref="timerRef" :savedSeconds="seconds" @seconds="(sec) => handleSenconds(sec)" />
+                <SudokuScore ref="scoreRef" :seconds />
                 <p class="text-right">Mistakes: {{ mistakes }}/3</p>
             </div>
             <div class="w-full max-w-xl aspect-square">
@@ -103,6 +103,7 @@ const answers = ref(0)
 const mistakes = ref(0)
 
 const timerRef = ref<InstanceType<typeof SudokuTimer> | null>(null)
+const scoreRef = ref<InstanceType<typeof SudokuScore> | null>(null)
 const seconds = ref(0)
 const notesToggle = ref(false)
 
@@ -131,25 +132,31 @@ if (selectedRow.value === null || selectedCol.value === null) return null
   }
 })
 
-onMounted(()=> {
+const startGame = () => {
+    if (!timerRef.value) return
     const sudokuLS = localStorage.getItem('sudoku')
     const sudokuUserSolvedLS = localStorage.getItem('sudokuUserSolved')
 
+    let sudoku = makepuzzle()
+
     if (sudokuLS) {
-        let sudokuArray = sudokuStringtoArray(sudokuLS)
-        if (sudokuUserSolvedLS) {
-            sudokuUserSolved.value = sudokuStringtoArray(sudokuUserSolvedLS)
-            // sudokuArray = addUserSolved(sudokuArray)
-            generateSudoku(sudokuArray, sudokuUserSolved.value)
-            return
-        } 
-        generateSudoku(sudokuArray)
-        return
+        sudoku = sudokuStringtoArray(sudokuLS)
+
+        sudokuUserSolved.value = sudokuUserSolvedLS ? sudokuStringtoArray(sudokuUserSolvedLS) : []    
     }
 
-    generateSudoku(makepuzzle())
-
+    // default values or load last game
+    mistakes.value = Number(localStorage.getItem('mistakes')) | 0
+    answers.value = Number(localStorage.getItem('answers')) | 0
+    seconds.value = Number(localStorage.getItem('seconds')) | 0
+    timerRef.value.start(seconds.value)
     
+
+    generateSudoku(sudoku, sudokuUserSolved.value)
+}
+
+onMounted(()=> {
+    startGame()    
 })
 
 const sudokuStringtoArray = (sudoku:string): Array<number|null> => {
@@ -158,7 +165,8 @@ const sudokuStringtoArray = (sudoku:string): Array<number|null> => {
     return sudokuNum
 }
 
-const handleSenconds = (secondsTimer:number) => {   
+const handleSenconds = (secondsTimer:number) => {
+    localStorage.setItem('seconds', seconds.value+'')
     seconds.value = secondsTimer
 }
 
@@ -166,10 +174,6 @@ const generateSudoku = (sudokuG: Array<number | null>, sudokuUserSoluved?: Array
     sudokuGen.value = sudokuG
     localStorage.setItem('sudoku',sudokuGen.value.toString())   
     sudokuSolved.value = solvepuzzle(sudokuGen.value)
-    mistakes.value = Number(localStorage.getItem('mistakes')) | 0
-    answers.value = Number(localStorage.getItem('answers')) | 0
-
-    if (timerRef.value) timerRef.value.reset()
     
     sudoku.value = []
 
@@ -201,7 +205,14 @@ const generateSudoku = (sudokuG: Array<number | null>, sudokuUserSoluved?: Array
 
 const closeAlert = () => {
     isOpen.value = false
-    generateSudoku(makepuzzle())
+
+    // clean data
+    localStorage.removeItem('score')
+    localStorage.removeItem('mistakes')
+    localStorage.removeItem('sudoku')
+    localStorage.removeItem('sudokuUserSolved')
+
+    startGame()
 };
 
 const selectCell = (ev:PointerEvent, numberPosition: NumberPosition) => {
@@ -215,6 +226,7 @@ const selectCell = (ev:PointerEvent, numberPosition: NumberPosition) => {
 const addNumber = (number: number) => {
     if (!selectedPosition.value) return
     if (!selectedElement.value) return
+    if (!scoreRef.value) return
     
     // sudoku numbers internal function go from 0 to 8
     number = number - 1    
@@ -232,21 +244,21 @@ const addNumber = (number: number) => {
     if (number === correctNumber) {
         // correct
         selectedPosition.value.color = answersColor
-        answers.value++
-        localStorage.setItem(answers.value+'','answers')
+        scoreRef.value.addScore()
+        
         // sudoku.value[selectedPosition.value.index] = number
         // localStorage.setItem('sudoku',sudoku.value.toString())
         sudokuUserSolved.value[selectedPosition.value.index] = number
         localStorage.setItem('sudokuUserSolved',sudokuUserSolved.value.toString())
     } else {
         // mistake
+        mistakes.value++
         if (mistakes.value>=3) {
             isOpen.value = true
             if (timerRef.value) timerRef.value.stop()
             return
         }
-        mistakes.value++
-        localStorage.setItem(mistakes.value+'','mistakes')
+        scoreRef.value.addMistake()
         selectedPosition.value.color = mistakesColor
     }
 
@@ -257,9 +269,7 @@ const addNumber = (number: number) => {
 const notesEnabled = (cell:HTMLElement, number:number) => {
     const fixNumber = number + 1 + ''
     const cellGridNumber = cell.getElementsByClassName(fixNumber)[0]
-    if (!cellGridNumber) return
-    console.log('content', cellGridNumber.textContent);
-    
+    if (!cellGridNumber) return    
     cellGridNumber.textContent = !cellGridNumber.textContent ? fixNumber : ''
 }
 
