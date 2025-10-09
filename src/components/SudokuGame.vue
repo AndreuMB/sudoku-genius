@@ -13,9 +13,8 @@
                         <td 
                             v-for="(numberPosition, colIndex) in line"
                             @click="(ev) => selectCell(ev,numberPosition)" 
-                            class="w-5 h-5 relative" 
+                            class="max-w-[50px] max-h-[50px] relative" 
                             :class="[
-                                numberPosition.number === null ? '' : '',
                                 numberPosition.color,
                                 selectedRow === lineIndex ? 'bg-primary-light' : '',
                                 selectedCol === colIndex ? 'bg-primary-light' : '',
@@ -43,8 +42,8 @@
                                 <div class="8"></div>
                                 <div class="9"></div> -->
                             </div>
-                            <div v-if="numberPosition.number !== null" >
-                                {{ numberPosition.number + 1 }}
+                            <div :class="[numberPosition.number === null ? 'opacity-0' : '']" >
+                                {{ (numberPosition.number || 0) + 1 }}
                             </div>
                         </td>
                     </tr>
@@ -56,7 +55,13 @@
                 <!-- first row buttons -->
             </div>
             <div class="flex justify-center w-full buttons items-center flex-wrap gap-2">
-                <button @click="addNumber(value)" v-for="value in [1,2,3,4,5,6,7,8,9]">{{ value }}</button>
+                <button
+                    v-for="value in [1,2,3,4,5,6,7,8,9]"
+                    @click="addNumber(value)"
+                    :class="[notesToggle ? 'bg-secondary-extra-light!  text-secondary!' : '']"
+                >
+                    {{ value }}
+                </button>
                 <button 
                     @click="notesToggle=!notesToggle"
                     :class="[notesToggle ? 'bg-primary-dark!' : '']"
@@ -138,19 +143,17 @@ const startGame = () => {
     loadSudoku()
     if (!timerRef.value) return
     const sudokuLS = localStorage.getItem('sudoku')
-    const sudokuUserSolvedLS = localStorage.getItem('sudokuUserSolved')
+    const sudokuUserSolvedLS = localStorage.getItem('sudokuUserSolved')    
 
     let sudoku = makepuzzle()
 
-    if (sudokuLS) {
-        sudoku = sudokuStringtoArray(sudokuLS)
-        sudokuUserSolved.value = sudokuUserSolvedLS ? sudokuStringtoArray(sudokuUserSolvedLS) : []    
-    }
+    if (sudokuLS) sudoku = sudokuStringtoArray(sudokuLS) 
 
     // default values or load last game
     mistakes.value = Number(localStorage.getItem('mistakes')) | 0
     answers.value = Number(localStorage.getItem('answers')) | 0
     seconds.value = Number(localStorage.getItem('seconds')) | 0
+    sudokuUserSolved.value = sudokuUserSolvedLS ? sudokuStringtoArray(sudokuUserSolvedLS) : []    
     timerRef.value.start(seconds.value)
     
 
@@ -174,7 +177,7 @@ const handleSenconds = (secondsTimer:number) => {
 
 const generateSudoku = (sudokuG: Array<number | null>, sudokuUserSoluved?: Array<number | null>) => {
     sudokuGen.value = sudokuG
-    localStorage.setItem('sudoku',sudokuGen.value.toString())   
+    localStorage.setItem('sudoku',sudokuGen.value.toString())    
     sudokuSolved.value = solvepuzzle(sudokuGen.value)
     
     sudoku.value = []
@@ -219,7 +222,9 @@ const closeAlert = () => {
     localStorage.removeItem('score')
     localStorage.removeItem('mistakes')
     localStorage.removeItem('sudoku')
+    localStorage.removeItem('seconds')
     localStorage.removeItem('sudokuUserSolved')
+    localStorage.removeItem('sudokuState')
 
     startGame()
 };
@@ -239,14 +244,13 @@ const addNumber = (number: number) => {
     
     // sudoku numbers internal function go from 0 to 8
     number = number - 1
-
+    
     const correctNumber = sudokuSolved.value[selectedPosition.value.index]
     
     if (selectedPosition.value.number === correctNumber) return
 
     if (notesToggle.value) {
         number = number + 1
-        selectedPosition.value.number = null
 
         if (selectedPosition.value.noteNumber.find(num => num === number)) {
             // remove number
@@ -269,7 +273,7 @@ const addNumber = (number: number) => {
         localStorage.setItem('sudokuUserSolved',sudokuUserSolved.value.toString())
     } else {
         // mistake
-        mistakes.value++
+        // mistakes.value++
         if (mistakes.value>=3) {
             isOpen.value = true
             if (timerRef.value) timerRef.value.stop()
@@ -300,6 +304,8 @@ const loadSudoku = () => {
     if (saved) {
         const parsed = JSON.parse(saved)
         notesNumber.value = parsed
+    } else {
+        notesNumber.value = null
     }
     
 }
@@ -377,11 +383,13 @@ const loadSudoku = () => {
         color: var(--primary-color);
     }
 
-    .buttons > button:hover{
-        background-color: var(--primary-light-dark-color);
+    @media(hover: hover) {
+        .buttons > button:hover{
+            background-color: var(--primary-dark-color);
+        }
     }
 
-    /* .buttons > button:active{
-        background-color: var(--color-primary-dark);
-    } */
+    .buttons > button:active{
+        background-color: var(--primary-dark-color);
+    }
 </style>

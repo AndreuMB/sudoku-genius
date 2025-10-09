@@ -18,20 +18,21 @@ http://ionicframework.com/docs/theming/ */
 
   --extra-color: #717171;
   --extra-light-color: #FFF689; */
-    
-    --primary-color: #3945ad;
-    --primary-dark-color: #aecfef;
-    --primary-light-color: #e1ebf5;
-    --primary-light-dark-color: #dbe5ee;
 
-    --secondary-color: #131313;
-    --secondary-dark-color: #13131370;
-    --secondary-light-color: #13131350;
+  --primary-color: #3945ad;
+  --primary-dark-color: #aecfef;
+  --primary-light-color: #e1ebf5;
+  --primary-light-dark-color: #dbe5ee; /* dbe5ee */
 
-    --extra-color: #ff1a1a;
+  --secondary-color: #131313;
+  --secondary-dark-color: #13131370;
+  --secondary-light-color: #13131350;
+  --secondary-extra-light-color: #d3d3d350;
 
-    --background-color: white;
-    --text-color: #131313;
+  --extra-color: #ff1a1a;
+
+  --background-color: white;
+  --text-color: #131313;
 }
 
 @theme {
@@ -41,6 +42,8 @@ http://ionicframework.com/docs/theming/ */
 
   --color-secondary: var(--secondary-color);
   --color-secondary-dark: var(--secondary-dark-color);
+  --color-secondary-light: var(--secondary-light-color);
+  --color-secondary-extra-light: var(--secondary-extra-light-color);
 
   /* --color-terciary: var(--terciary-color);
   --color-terciary-light: var(--terciary-light-color);
@@ -55,43 +58,43 @@ http://ionicframework.com/docs/theming/ */
 }
 
 .tab-selected {
-    color:var(--secondary-color)
+  color: var(--primary-color);
 }
 
 ion-toolbar {
-    --background: var(--primary-light-color);
-    --color: var(--text-color);
+  --background: var(--primary-light-color);
+  --color: var(--text-color);
 }
 
 ion-tab-bar {
-    --background: var(--primary-light-color);
-    --color: var(--text-color);
+  --background: var(--primary-light-color);
+  --color: var(--text-color);
 }
 
 ion-tab-button {
-    /* --color: var(--terciary-dark-color);
+  /* --color: var(--terciary-dark-color);
     --background: var(--color-terciary); */
-    --color-selected: var(--primary-color); /* hover */
+  --color-selected: var(--primary-color); /* hover */
 }
 
 ion-content {
-    --color: var(--text-color);
+  --color: var(--text-color);
 }
 
 #container {
-    background: var(--background-color);
-    /* color: #131313 !important; */
+  background: var(--background-color);
+  /* color: #131313 !important; */
 }
 
 body {
-    font-family: BrunoAce;
+  font-family: BrunoAce;
 }
 
 @font-face {
-    font-family: BrunoAce;
-    src: url(/src/assets/BrunoAceSC.ttf);
+  font-family: BrunoAce;
+  src: url(/src/assets/BrunoAceSC.ttf);
 }
 
 .header {
-    box-shadow: none;
+  box-shadow: none;
 }
