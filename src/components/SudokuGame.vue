@@ -31,7 +31,7 @@
                                 v-show="numberPosition.number === null"
                                 class="note-number absolute h-full w-full top-0 left-0 grid grid-cols-3 grid-rows-3 text-sm"
                             >
-                                <div v-for="n in 9" :key="n">{{ numberPosition.noteNumber.find(num=>num===n) ? n : '' }}</div>
+                                <div v-for="n in 9" :key="n">{{ numberPosition.noteNumber.find(num=>num===n-1) !== undefined ? n : '' }}</div>
                                 <!-- <div class="1"></div>
                                 <div class="2"></div>
                                 <div class="3"></div>
@@ -56,11 +56,11 @@
             </div>
             <div class="flex justify-center w-full buttons items-center flex-wrap gap-2">
                 <button
-                    v-for="value in [1,2,3,4,5,6,7,8,9]"
+                    v-for="value in [0,1,2,3,4,5,6,7,8]"
                     @click="addNumber(value)"
                     :class="[notesToggle ? 'bg-secondary-extra-light!  text-secondary!' : '']"
                 >
-                    {{ value }}
+                    {{ value + 1 }}
                 </button>
                 <button 
                     @click="notesToggle=!notesToggle"
@@ -138,6 +138,31 @@ if (selectedRow.value === null || selectedCol.value === null) return null
     col: Math.floor(selectedCol.value / 3),
   }
 })
+
+const cleanNoteNumber = (correctNumber: number) => {    
+    sudoku.value.forEach((line,rowIndex) => {
+        line.forEach((number,colIndex) => {
+            if (rowIndex === selectedRow.value) {
+                number.noteNumber = number.noteNumber.filter(noteNumber => noteNumber != correctNumber)
+            }
+
+            if (colIndex === selectedCol.value) {
+                number.noteNumber = number.noteNumber.filter(noteNumber => noteNumber != correctNumber)
+            }
+
+            if (!selectedSquare.value) return
+
+            const squareRowIndex = Math.floor(rowIndex / 3)
+            const squareColIndex = Math.floor(colIndex / 3)
+            if(
+                squareRowIndex === selectedSquare.value.row &&
+                squareColIndex === selectedSquare.value.col
+            ) {
+                number.noteNumber = number.noteNumber.filter(noteNumber => noteNumber != correctNumber)
+            }
+        })
+    })
+}
 
 const startGame = () => {
     loadSudoku()
@@ -231,8 +256,6 @@ const closeAlert = () => {
 
 const selectCell = (ev:PointerEvent, numberPosition: NumberPosition) => {
     const td = ev.currentTarget as HTMLElement
-    // td.classList.add('bg-gray-700')
-    // if (selectedElement.value) selectedElement.value.classList.remove('bg-gray-700!')
     selectedElement.value = td
     selectedPosition.value = numberPosition
 }
@@ -242,19 +265,16 @@ const addNumber = (number: number) => {
     if (!selectedElement.value) return
     if (!scoreRef.value) return
     
-    // sudoku numbers internal function go from 0 to 8
-    number = number - 1
-    
     const correctNumber = sudokuSolved.value[selectedPosition.value.index]
     
     if (selectedPosition.value.number === correctNumber) return
 
-    if (notesToggle.value) {
-        number = number + 1
+    if (selectedPosition.value.number !== 0) selectedPosition.value.number = null
 
-        if (selectedPosition.value.noteNumber.find(num => num === number)) {
+    if (notesToggle.value) {
+        if (selectedPosition.value.noteNumber.find(num => num === number) !== undefined) {
             // remove number
-            selectedPosition.value.noteNumber = selectedPosition.value.noteNumber.filter(item => item !== number);
+            selectedPosition.value.noteNumber = selectedPosition.value.noteNumber.filter(num => num !== number);
         } else {
             // add number
             selectedPosition.value.noteNumber.push(number)
@@ -271,9 +291,10 @@ const addNumber = (number: number) => {
         scoreRef.value.addScore()
         sudokuUserSolved.value[selectedPosition.value.index] = number
         localStorage.setItem('sudokuUserSolved',sudokuUserSolved.value.toString())
+        cleanNoteNumber(number)
     } else {
         // mistake
-        // mistakes.value++
+        mistakes.value++
         if (mistakes.value>=3) {
             isOpen.value = true
             if (timerRef.value) timerRef.value.stop()
