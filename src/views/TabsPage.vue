@@ -8,10 +8,10 @@
           <ion-label>Sudoku</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="tab2" href="/tabs/tab2">
+        <!-- <ion-tab-button tab="tab2" href="/tabs/tab2">
            <ion-icon name="trophy-outline"></ion-icon>
           <ion-label>Ranking</ion-label>
-        </ion-tab-button>
+        </ion-tab-button> -->
       </ion-tab-bar>
     </ion-tabs>
   </ion-page>

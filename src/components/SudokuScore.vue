@@ -40,7 +40,8 @@ const addMistake = () => {
 
 defineExpose({
   addScore,
-  addMistake
+  addMistake,
+  score
 })
 
 onMounted(()=> {

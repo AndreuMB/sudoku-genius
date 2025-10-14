@@ -32,15 +32,6 @@
                                 class="note-number absolute h-full w-full top-0 left-0 grid grid-cols-3 grid-rows-3 text-sm"
                             >
                                 <div v-for="n in 9" :key="n">{{ numberPosition.noteNumber.find(num=>num===n-1) !== undefined ? n : '' }}</div>
-                                <!-- <div class="1"></div>
-                                <div class="2"></div>
-                                <div class="3"></div>
-                                <div class="4"></div>
-                                <div class="5"></div>
-                                <div class="6"></div>
-                                <div class="7"></div>
-                                <div class="8"></div>
-                                <div class="9"></div> -->
                             </div>
                             <div :class="[numberPosition.number === null ? 'opacity-0' : '']" >
                                 {{ (numberPosition.number || 0) + 1 }}
@@ -73,8 +64,8 @@
         
     </div>
     <ion-alert
-        header="Fail"
-        message="Uh Oh... You made more than 3 mistakes."
+        :header
+        :message
         :is-open="isOpen"
         :buttons="alertButtons"
         @didDismiss="closeAlert()"
@@ -101,7 +92,11 @@ interface NumberPosition {
     noteNumber: number[] // gray small numbers
 }
 
-const alertButtons = ['Try again'];
+// alert
+const alertButtons = ref(['Try again']);
+const header = ref('')
+const message = ref('')
+
 const isOpen = ref(false);
 const sudokuGen = ref<Array<any>>(makepuzzle())
 const sudokuSolved = ref<Array<any>>(solvepuzzle(sudokuGen))
@@ -285,6 +280,8 @@ const addNumber = (number: number) => {
         return
     }
 
+    selectedPosition.value.number = number
+
     if (number === correctNumber) {
         // correct
         selectedPosition.value.color = answersColor
@@ -292,10 +289,14 @@ const addNumber = (number: number) => {
         sudokuUserSolved.value[selectedPosition.value.index] = number
         localStorage.setItem('sudokuUserSolved',sudokuUserSolved.value.toString())
         cleanNoteNumber(number)
+        checkWin(scoreRef.value)
     } else {
         // mistake
         mistakes.value++
         if (mistakes.value>=3) {
+            alertButtons.value = ['Try again'];
+            header.value="Fail"
+            message.value="Uh Oh... You made more than 3 mistakes."
             isOpen.value = true
             if (timerRef.value) timerRef.value.stop()
             return
@@ -303,11 +304,29 @@ const addNumber = (number: number) => {
         scoreRef.value.addMistake()
         selectedPosition.value.color = mistakesColor
     }
-
-    
-    selectedPosition.value.number = number    
     
     saveSudoku()
+}
+
+const checkWin = (scoreRef: InstanceType<typeof SudokuScore>) => {
+    // if (sudoku.value.find(num => num))
+    let win = true
+    sudoku.value.forEach(line => {
+        line.forEach(num => {
+            if (num.number === null) {
+                win = false
+            }
+        })
+    })
+
+    if (win) {
+        alertButtons.value = ['Play again'];
+        header.value="You won!"
+        message.value=`Your score is ${scoreRef.score}!`
+        isOpen.value = true
+        if (timerRef.value) timerRef.value.stop()
+    }
+    
 }
 
 const saveSudoku = () => {
