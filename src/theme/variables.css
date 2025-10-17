@@ -19,10 +19,15 @@ http://ionicframework.com/docs/theming/ */
   --extra-color: #717171;
   --extra-light-color: #FFF689; */
 
-  --primary-color: #3945ad;
+  /* --primary-color: #3945ad;
   --primary-dark-color: #aecfef;
   --primary-light-color: #e1ebf5;
-  --primary-light-dark-color: #dbe5ee; /* dbe5ee */
+  --primary-light-dark-color: #dbe5ee; */
+
+  --primary-color: #573ebb;
+  --primary-dark-color: #b2aeef;
+  --primary-light-color: #e5e1f5;
+  --primary-light-dark-color: #e8dbee;
 
   --secondary-color: #131313;
   --secondary-dark-color: #13131370;
